@@ -30,13 +30,20 @@ def run_models(X_train, y_train, X_valid, y_valid):
         with mlflow.start_run():
 
             # Build and Train model
-            model = make_pipeline(
-                DictVectorizer(),
-                SimpleImputer(),
-                model_class(random_state=42),
-            )
-            model.fit(X_train.to_dict(orient="records"), y_train)
-
+            if model_class == RandomForestRegressor:
+                model = make_pipeline(
+                    DictVectorizer(),
+                    SimpleImputer(),
+                    model_class(random_state=42, max_depth=10, n_jobs=-1),
+                    )
+                model.fit(X_train.to_dict(orient="records"), y_train)
+            else:
+                model = make_pipeline(
+                    DictVectorizer(),
+                    SimpleImputer(),
+                    model_class(random_state=42),
+                    )
+                model.fit(X_train.to_dict(orient="records"), y_train)
             # MLflow logging
             start_time = time.time()
             y_pred_train = model.predict(X_train.to_dict(orient="records"))
